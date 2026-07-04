@@ -1,0 +1,75 @@
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
+import { RegistrationsService } from './registrations.service';
+import { RejectDto } from './dto/reject.dto';
+export declare class RegistrationsController {
+    private readonly svc;
+    constructor(svc: RegistrationsService);
+    findAll(): import(".prisma/client").Prisma.PrismaPromise<{
+        gender: string;
+        created_at: Date;
+        citizen_national_id_number: string;
+        citizen_first_name: string;
+        citizen_father_name: string;
+        citizen_last_name: string;
+        mother_first_name: string;
+        mother_last_name: string;
+        date_of_birth: Date;
+        place_of_birth: string;
+        phone_number: string;
+        photo_url: string;
+        id_card_copy_url: string | null;
+        name_index_copy_url: string | null;
+        request_status: string;
+        registration_reference_number: string;
+        rejection_reason: string | null;
+        reviewed_at: Date | null;
+        reviewed_by: string | null;
+    }[]>;
+    findOne(reference: string): Promise<{
+        gender: string;
+        created_at: Date;
+        citizen_national_id_number: string;
+        citizen_first_name: string;
+        citizen_father_name: string;
+        citizen_last_name: string;
+        mother_first_name: string;
+        mother_last_name: string;
+        date_of_birth: Date;
+        place_of_birth: string;
+        phone_number: string;
+        photo_url: string;
+        id_card_copy_url: string | null;
+        name_index_copy_url: string | null;
+        request_status: string;
+        registration_reference_number: string;
+        rejection_reason: string | null;
+        reviewed_at: Date | null;
+        reviewed_by: string | null;
+    }>;
+    approve(reference: string, user: JwtPayload): Promise<{
+        username: string;
+        plainPassword: string;
+        reference: string;
+    }>;
+    reject(reference: string, dto: RejectDto, user: JwtPayload): Promise<{
+        gender: string;
+        created_at: Date;
+        citizen_national_id_number: string;
+        citizen_first_name: string;
+        citizen_father_name: string;
+        citizen_last_name: string;
+        mother_first_name: string;
+        mother_last_name: string;
+        date_of_birth: Date;
+        place_of_birth: string;
+        phone_number: string;
+        photo_url: string;
+        id_card_copy_url: string | null;
+        name_index_copy_url: string | null;
+        request_status: string;
+        registration_reference_number: string;
+        rejection_reason: string | null;
+        reviewed_at: Date | null;
+        reviewed_by: string | null;
+    }>;
+}
