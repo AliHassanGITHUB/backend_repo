@@ -12,7 +12,9 @@ export class MinioService implements OnModuleInit {
   constructor(private readonly config: ConfigService) {
     const port = config.get<string>('PORT') ?? '3000';
     this.uploadsDir = path.resolve(process.cwd(), 'uploads');
-    this.baseUrl = `http://localhost:${port}/uploads`;
+    // Use BASE_URL env var when provided (e.g. in production), fallback to localhost for local dev
+    const base = process.env.BASE_URL ? process.env.BASE_URL : `http://localhost:${port}`;
+    this.baseUrl = `${base.replace(/\/$/, '')}/uploads`;
   }
 
   onModuleInit() {
