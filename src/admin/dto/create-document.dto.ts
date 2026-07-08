@@ -1,13 +1,16 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsBoolean,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
   Matches,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -18,6 +21,17 @@ export class DocumentRequirementItemDto {
 
   @IsBoolean()
   isMandatory: boolean;
+
+  @ValidateIf((o) => o.isMandatory === false)
+  @IsString()
+  @IsNotEmpty()
+  revealedByRequirementCode?: string;
+
+  @ValidateIf((o) => o.isMandatory === false)
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  revealedByValues?: string[];
 }
 
 export class CreateDocumentDto {

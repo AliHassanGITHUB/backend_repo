@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDocumentDto, UpdateDocumentDto } from './dto/create-document.dto';
 
@@ -39,11 +39,20 @@ export class DocumentsService {
         for (const r of dto.requirements) {
           const req = await tx.requirement.findUnique({ where: { requirement_code: r.code } });
           if (!req) throw new NotFoundException(`Requirement ${r.code} not found`);
+          if (r.isMandatory === false) {
+            if (!r.revealedByRequirementCode || !r.revealedByValues?.length) {
+              throw new BadRequestException(
+                `Situational requirement ${r.code} must include revealedByRequirementCode and revealedByValues`,
+              );
+            }
+          }
           await tx.document_requirement.create({
             data: {
               document_code: doc.document_code,
               requirement_code: r.code,
               is_mandatory: r.isMandatory,
+              revealed_by_requirement_code: r.revealedByRequirementCode,
+              revealed_by_values: r.isMandatory ? undefined : r.revealedByValues,
               created_by: adminNationalId,
             },
           });
@@ -84,11 +93,20 @@ export class DocumentsService {
         for (const r of dto.requirements) {
           const req = await tx.requirement.findUnique({ where: { requirement_code: r.code } });
           if (!req) throw new NotFoundException(`Requirement ${r.code} not found`);
+          if (r.isMandatory === false) {
+            if (!r.revealedByRequirementCode || !r.revealedByValues?.length) {
+              throw new BadRequestException(
+                `Situational requirement ${r.code} must include revealedByRequirementCode and revealedByValues`,
+              );
+            }
+          }
           await tx.document_requirement.create({
             data: {
               document_code: code,
               requirement_code: r.code,
               is_mandatory: r.isMandatory,
+              revealed_by_requirement_code: r.revealedByRequirementCode,
+              revealed_by_values: r.isMandatory ? undefined : r.revealedByValues,
               created_by: adminNationalId,
             },
           });
