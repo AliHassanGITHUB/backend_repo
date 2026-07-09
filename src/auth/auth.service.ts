@@ -223,12 +223,13 @@ export class AuthService {
 
   async forgotPasswordStart(dto: ForgotPasswordStartDto) {
     const citizen = await this.findCitizenByIdentifier(dto.identifier);
-    if (citizen) {
-      // Best-effort — failures must not change the response, or account
-      // existence would leak through the error path.
-      await this.verify.start(citizen.phone_number).catch(() => undefined);
-    }
-    return { message: 'If an account exists, a code has been sent.' };
+    const result = citizen
+      ? await this.verify.start(citizen.phone_number).catch(() => undefined)
+      : {};
+    return {
+      message: 'If an account exists, a code has been sent.',
+      ...result,
+    };
   }
 
   async forgotPasswordReset(dto: ForgotPasswordResetDto) {
