@@ -1,41 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import twilio from 'twilio';
 
 @Injectable()
 export class VerifyService {
-  private readonly client: ReturnType<typeof twilio>;
-  private readonly serviceSid: string;
+  private readonly mockEnabled: boolean;
+  private readonly otpStore = new Map<string, string>();
 
   constructor(private readonly config: ConfigService) {
-    this.client = twilio(
-      this.config.get<string>('TWILIO_ACCOUNT_SID'),
-      this.config.get<string>('TWILIO_AUTH_TOKEN'),
-    );
-    this.serviceSid = this.config.getOrThrow<string>('TWILIO_VERIFY_SERVICE_SID');
+    this.mockEnabled = this.config.get<string>('ENABLE_MOCK_OTP', 'false') === 'true';
   }
 
-  // Stored numbers look like "+961 70 123 456" — Twilio Verify needs E.164
-  private toE164(phone: string): string {
+  private normalizePhone(phone: string): string {
     return phone.replace(/\s+/g, '');
   }
 
-  async start(phone: string): Promise<void> {
-    await this.client.verify.v2
-      .services(this.serviceSid)
-      .verifications.create({ to: this.toE164(phone), channel: 'sms' });
+  private createMockOtp(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  // Twilio throws (404/expired/no pending verification) instead of returning
-  // "pending" in those cases — treat any such failure as "not approved"
+  async start(phone: string): Promise<{ mockOtp?: string }> {
+    const normalizedPhone = this.normalizePhone(phone);
+
+    if (!this.mockEnabled) {
+      return {};
+    }
+
+    const mockOtp = this.createMockOtp();
+    this.otpStore.set(normalizedPhone, mockOtp);
+    return { mockOtp };
+  }
+
   async check(phone: string, code: string): Promise<boolean> {
-    try {
-      const result = await this.client.verify.v2
-        .services(this.serviceSid)
-        .verificationChecks.create({ to: this.toE164(phone), code });
-      return result.status === 'approved';
-    } catch {
+    const normalizedPhone = this.normalizePhone(phone);
+    const stored = this.otpStore.get(normalizedPhone);
+
+    if (!stored) {
       return false;
     }
+
+    if (stored === code) {
+      this.otpStore.delete(normalizedPhone);
+      return true;
+    }
+
+    return false;
   }
 }
