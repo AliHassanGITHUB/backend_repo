@@ -20,6 +20,7 @@ export class OtpService {
       );
     }
     this.lastSentAt.set(key, now);
-    return this.verify.start(phoneNumber);
+    const result = await this.verify.start(phoneNumber);
+    return { sent: true, ...result };
   }
 }

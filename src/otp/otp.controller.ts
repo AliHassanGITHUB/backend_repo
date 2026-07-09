@@ -8,7 +8,6 @@ export class OtpController {
 
   @Post('send')
   async send(@Body() dto: SendOtpDto) {
-    const result = await this.otp.send(dto.phoneNumber);
-    return { sent: true, ...result };
+    return await this.otp.send(dto.phoneNumber);
   }
 }
