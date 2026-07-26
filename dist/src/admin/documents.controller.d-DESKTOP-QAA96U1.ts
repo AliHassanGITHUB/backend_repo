@@ -1,8 +1,9 @@
-import { PrismaService } from '../prisma/prisma.service';
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
+import { DocumentsService } from './documents.service';
 import { CreateDocumentDto, UpdateDocumentDto } from './dto/create-document.dto';
-export declare class DocumentsService {
-    private readonly prisma;
-    constructor(prisma: PrismaService);
+export declare class DocumentsController {
+    private readonly svc;
+    constructor(svc: DocumentsService);
     findAll(): import(".prisma/client").Prisma.PrismaPromise<({
         category: {
             category_id: number;
@@ -45,7 +46,7 @@ export declare class DocumentsService {
         fees: import("@prisma/client-runtime-utils").Decimal;
         processing_days: number;
     })[]>;
-    create(dto: CreateDocumentDto, adminNationalId: string): Promise<({
+    create(dto: CreateDocumentDto, user: JwtPayload): Promise<({
         document_requirement: ({
             requirement: {
                 created_at: Date;
@@ -83,7 +84,7 @@ export declare class DocumentsService {
         fees: import("@prisma/client-runtime-utils").Decimal;
         processing_days: number;
     }) | null>;
-    update(code: string, dto: UpdateDocumentDto, adminNationalId: string): Promise<({
+    update(code: string, dto: UpdateDocumentDto, user: JwtPayload): Promise<({
         document_requirement: ({
             requirement: {
                 created_at: Date;
@@ -121,7 +122,7 @@ export declare class DocumentsService {
         fees: import("@prisma/client-runtime-utils").Decimal;
         processing_days: number;
     }) | null>;
-    toggle(code: string, adminNationalId: string): Promise<{
+    toggle(code: string, user: JwtPayload): Promise<{
         created_at: Date;
         is_active: boolean;
         created_by: string;
