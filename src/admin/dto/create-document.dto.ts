@@ -17,10 +17,10 @@ import { Type } from 'class-transformer';
 
 export class DocumentRequirementItemDto {
   @IsString()
-  code: string;
+  code!: string;
 
   @IsBoolean()
-  isMandatory: boolean;
+  isMandatory!: boolean;
 
   @ValidateIf((o) => o.isMandatory === false)
   @IsString()
@@ -39,29 +39,29 @@ export class CreateDocumentDto {
   @Matches(/^[A-Z]{2,6}[0-9]{6}DOC$/, {
     message: 'code must match pattern like IC467210DOC',
   })
-  code: string;
+  code!: string;
 
   @IsString()
   @Matches(/^[A-Z][a-z]{2,}( [A-Z][a-z]{2,})*$/)
-  name: string;
+  name!: string;
 
   @IsString()
-  description: string;
+  description!: string;
 
   @Type(() => Number)
   @IsNumber()
   @IsPositive()
-  fees: number;
+  fees!: number;
 
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  processingDays: number;
+  processingDays!: number;
 
   @Type(() => Number)
   @IsInt()
   @IsPositive()
-  categoryId: number;
+  categoryId!: number;
 
   @IsOptional()
   @IsArray()

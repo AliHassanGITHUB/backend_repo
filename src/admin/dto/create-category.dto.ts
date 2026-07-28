@@ -5,5 +5,5 @@ export class CreateCategoryDto {
   @Matches(/^[A-Z][a-z]{2,}( [A-Z][a-z]{2,})*$/, {
     message: 'name must be title-cased words of 3+ letters each',
   })
-  name: string;
+  name!: string;
 }

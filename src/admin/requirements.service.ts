@@ -13,12 +13,14 @@ export class RequirementsService {
   async create(dto: CreateRequirementDto, adminNationalId: string) {
     const existing = await this.prisma.requirement.findUnique({ where: { requirement_code: dto.code } });
     if (existing) throw new ConflictException(`Requirement code ${dto.code} already exists`);
-
+  
     return this.prisma.requirement.create({
       data: {
         requirement_code: dto.code,
         requirement_name: dto.name,
         requirement_type: dto.type,
+        form_input_kind: dto.form_input_kind ?? null,
+        form_options: dto.form_options ?? undefined,
         created_by: adminNationalId,
       },
     });
