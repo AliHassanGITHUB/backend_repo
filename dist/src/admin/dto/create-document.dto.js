@@ -15,6 +15,8 @@ const class_transformer_1 = require("class-transformer");
 class DocumentRequirementItemDto {
     code;
     isMandatory;
+    revealedByRequirementCode;
+    revealedByValues;
 }
 exports.DocumentRequirementItemDto = DocumentRequirementItemDto;
 __decorate([
@@ -25,6 +27,19 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], DocumentRequirementItemDto.prototype, "isMandatory", void 0);
+__decorate([
+    (0, class_validator_1.ValidateIf)((o) => o.isMandatory === false),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], DocumentRequirementItemDto.prototype, "revealedByRequirementCode", void 0);
+__decorate([
+    (0, class_validator_1.ValidateIf)((o) => o.isMandatory === false),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayNotEmpty)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], DocumentRequirementItemDto.prototype, "revealedByValues", void 0);
 class CreateDocumentDto {
     code;
     name;

@@ -27,7 +27,8 @@ let OtpService = class OtpService {
             throw new common_1.HttpException('Please wait before requesting another code', common_1.HttpStatus.TOO_MANY_REQUESTS);
         }
         this.lastSentAt.set(key, now);
-        await this.verify.start(phoneNumber);
+        const result = await this.verify.start(phoneNumber);
+        return { sent: true, ...result };
     }
 };
 exports.OtpService = OtpService;

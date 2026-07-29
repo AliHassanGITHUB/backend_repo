@@ -22,8 +22,7 @@ let OtpController = class OtpController {
         this.otp = otp;
     }
     async send(dto) {
-        await this.otp.send(dto.phoneNumber);
-        return { sent: true };
+        return await this.otp.send(dto.phoneNumber);
     }
 };
 exports.OtpController = OtpController;

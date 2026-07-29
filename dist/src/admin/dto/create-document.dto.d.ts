@@ -1,6 +1,8 @@
 export declare class DocumentRequirementItemDto {
     code: string;
     isMandatory: boolean;
+    revealedByRequirementCode?: string;
+    revealedByValues?: string[];
 }
 export declare class CreateDocumentDto {
     code: string;

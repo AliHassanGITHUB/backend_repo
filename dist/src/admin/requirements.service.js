@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RequirementsService = void 0;
 const common_1 = require("@nestjs/common");
-const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
 let RequirementsService = class RequirementsService {
     prisma;
@@ -25,16 +24,13 @@ let RequirementsService = class RequirementsService {
         const existing = await this.prisma.requirement.findUnique({ where: { requirement_code: dto.code } });
         if (existing)
             throw new common_1.ConflictException(`Requirement code ${dto.code} already exists`);
-        const isFormRequirement = dto.type === 'form';
         return this.prisma.requirement.create({
             data: {
                 requirement_code: dto.code,
                 requirement_name: dto.name,
                 requirement_type: dto.type,
-                form_input_kind: isFormRequirement ? dto.form_input_kind ?? null : null,
-                form_options: isFormRequirement && dto.form_input_kind === 'select'
-                    ? (dto.form_options ?? [])
-                    : client_1.Prisma.DbNull,
+                form_input_kind: dto.form_input_kind ?? null,
+                form_options: dto.form_options ?? undefined,
                 created_by: adminNationalId,
             },
         });

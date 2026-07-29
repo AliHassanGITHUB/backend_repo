@@ -198,10 +198,13 @@ let AuthService = class AuthService {
     }
     async forgotPasswordStart(dto) {
         const citizen = await this.findCitizenByIdentifier(dto.identifier);
-        if (citizen) {
-            await this.verify.start(citizen.phone_number).catch(() => undefined);
-        }
-        return { message: 'If an account exists, a code has been sent.' };
+        const result = citizen
+            ? await this.verify.start(citizen.phone_number).catch(() => undefined)
+            : {};
+        return {
+            message: 'If an account exists, a code has been sent.',
+            ...result,
+        };
     }
     async forgotPasswordReset(dto) {
         const citizen = await this.findCitizenByIdentifier(dto.identifier);

@@ -8,36 +8,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
-const prisma_module_1 = require("./prisma/prisma.module");
-const minio_module_1 = require("./minio/minio.module");
-const auth_module_1 = require("./auth/auth.module");
-const admin_module_1 = require("./admin/admin.module");
-const citizen_module_1 = require("./citizen/citizen.module");
-const sms_module_1 = require("./sms/sms.module");
-const payments_module_1 = require("./payments/payments.module");
-const verify_module_1 = require("./verify/verify.module");
-const otp_module_1 = require("./otp/otp.module");
+const app_service_1 = require("./app.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            config_1.ConfigModule.forRoot({ isGlobal: true }),
-            prisma_module_1.PrismaModule,
-            minio_module_1.MinioModule,
-            auth_module_1.AuthModule,
-            sms_module_1.SmsModule,
-            verify_module_1.VerifyModule,
-            otp_module_1.OtpModule,
-            admin_module_1.AdminModule,
-            citizen_module_1.CitizenModule,
-            payments_module_1.PaymentsModule,
-        ],
+        imports: [],
         controllers: [app_controller_1.AppController],
-        providers: [],
+        providers: [app_service_1.AppService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

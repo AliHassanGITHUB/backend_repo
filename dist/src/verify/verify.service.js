@@ -8,41 +8,44 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VerifyService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const twilio_1 = __importDefault(require("twilio"));
 let VerifyService = class VerifyService {
     config;
-    client;
-    serviceSid;
+    mockEnabled;
+    otpStore = new Map();
     constructor(config) {
         this.config = config;
-        this.client = (0, twilio_1.default)(this.config.get('TWILIO_ACCOUNT_SID'), this.config.get('TWILIO_AUTH_TOKEN'));
-        this.serviceSid = this.config.getOrThrow('TWILIO_VERIFY_SERVICE_SID');
+        this.mockEnabled = this.config.get('ENABLE_MOCK_OTP', 'false') === 'true';
     }
-    toE164(phone) {
+    normalizePhone(phone) {
         return phone.replace(/\s+/g, '');
     }
+    createMockOtp() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
     async start(phone) {
-        await this.client.verify.v2
-            .services(this.serviceSid)
-            .verifications.create({ to: this.toE164(phone), channel: 'sms' });
+        const normalizedPhone = this.normalizePhone(phone);
+        if (!this.mockEnabled) {
+            return {};
+        }
+        const mockOtp = this.createMockOtp();
+        this.otpStore.set(normalizedPhone, mockOtp);
+        return { mockOtp };
     }
     async check(phone, code) {
-        try {
-            const result = await this.client.verify.v2
-                .services(this.serviceSid)
-                .verificationChecks.create({ to: this.toE164(phone), code });
-            return result.status === 'approved';
-        }
-        catch {
+        const normalizedPhone = this.normalizePhone(phone);
+        const stored = this.otpStore.get(normalizedPhone);
+        if (!stored) {
             return false;
         }
+        if (stored === code) {
+            this.otpStore.delete(normalizedPhone);
+            return true;
+        }
+        return false;
     }
 };
 exports.VerifyService = VerifyService;

@@ -3,5 +3,8 @@ export declare class OtpService {
     private readonly verify;
     private readonly lastSentAt;
     constructor(verify: VerifyService);
-    send(phoneNumber: string): Promise<void>;
+    send(phoneNumber: string): Promise<{
+        sent: boolean;
+        mockOtp?: string;
+    }>;
 }

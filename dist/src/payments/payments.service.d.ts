@@ -1,13 +1,16 @@
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { SmsService } from '../sms/sms.service';
+import { MinioService } from '../minio/minio.service';
 export declare class PaymentsService {
     private readonly prisma;
     private readonly sms;
     private readonly config;
+    private readonly minio;
     private readonly stripe;
     private readonly mockEnabled;
-    constructor(prisma: PrismaService, sms: SmsService, config: ConfigService);
+    constructor(prisma: PrismaService, sms: SmsService, config: ConfigService, minio: MinioService);
+    private generatePdfBuffer;
     createIntent(applicationId: number, citizenNationalId: string): Promise<{
         clientSecret: string | null;
     }>;

@@ -33,6 +33,7 @@ export declare class AuthController {
         password?: undefined;
     }>;
     forgotPasswordStart(dto: ForgotPasswordStartDto): Promise<{
+        mockOtp?: string;
         message: string;
     }>;
     forgotPasswordReset(dto: ForgotPasswordResetDto): Promise<{

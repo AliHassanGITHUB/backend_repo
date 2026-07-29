@@ -49,11 +49,18 @@ let DocumentsService = class DocumentsService {
                     const req = await tx.requirement.findUnique({ where: { requirement_code: r.code } });
                     if (!req)
                         throw new common_1.NotFoundException(`Requirement ${r.code} not found`);
+                    if (r.isMandatory === false) {
+                        if (!r.revealedByRequirementCode || !r.revealedByValues?.length) {
+                            throw new common_1.BadRequestException(`Situational requirement ${r.code} must include revealedByRequirementCode and revealedByValues`);
+                        }
+                    }
                     await tx.document_requirement.create({
                         data: {
                             document_code: doc.document_code,
                             requirement_code: r.code,
                             is_mandatory: r.isMandatory,
+                            revealed_by_requirement_code: r.revealedByRequirementCode,
+                            revealed_by_values: r.isMandatory ? undefined : r.revealedByValues,
                             created_by: adminNationalId,
                         },
                     });
@@ -92,11 +99,18 @@ let DocumentsService = class DocumentsService {
                     const req = await tx.requirement.findUnique({ where: { requirement_code: r.code } });
                     if (!req)
                         throw new common_1.NotFoundException(`Requirement ${r.code} not found`);
+                    if (r.isMandatory === false) {
+                        if (!r.revealedByRequirementCode || !r.revealedByValues?.length) {
+                            throw new common_1.BadRequestException(`Situational requirement ${r.code} must include revealedByRequirementCode and revealedByValues`);
+                        }
+                    }
                     await tx.document_requirement.create({
                         data: {
                             document_code: code,
                             requirement_code: r.code,
                             is_mandatory: r.isMandatory,
+                            revealed_by_requirement_code: r.revealedByRequirementCode,
+                            revealed_by_values: r.isMandatory ? undefined : r.revealedByValues,
                             created_by: adminNationalId,
                         },
                     });

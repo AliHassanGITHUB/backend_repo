@@ -18,19 +18,41 @@ const config_1 = require("@nestjs/config");
 const stripe_1 = __importDefault(require("stripe"));
 const prisma_service_1 = require("../prisma/prisma.service");
 const sms_service_1 = require("../sms/sms.service");
+const minio_service_1 = require("../minio/minio.service");
+const pdfkit_1 = __importDefault(require("pdfkit"));
 let PaymentsService = class PaymentsService {
     prisma;
     sms;
     config;
+    minio;
     stripe;
     mockEnabled;
-    constructor(prisma, sms, config) {
+    constructor(prisma, sms, config, minio) {
         this.prisma = prisma;
         this.sms = sms;
         this.config = config;
+        this.minio = minio;
         const stripeKey = config.get('STRIPE_SECRET_KEY', '');
         this.stripe = stripeKey ? new stripe_1.default(stripeKey) : null;
         this.mockEnabled = config.get('ENABLE_MOCK_PAYMENTS', 'false') === 'true';
+    }
+    async generatePdfBuffer(application, serial, issuedAt) {
+        const doc = new pdfkit_1.default();
+        const chunks = [];
+        return new Promise((resolve, reject) => {
+            doc.on('data', (chunk) => chunks.push(chunk));
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', (err) => reject(err));
+            doc.fontSize(20).text('Issued Document', { align: 'center' });
+            doc.moveDown();
+            doc.fontSize(12).text(`Serial: ${serial}`);
+            doc.text(`Document: ${application.document.document_name} (${application.document.document_code})`);
+            doc.text(`Citizen: ${application.citizen.citizen_first_name} ${application.citizen.citizen_last_name} (${application.citizen.citizen_national_id_number})`);
+            doc.text(`Issued at: ${issuedAt.toISOString().split('T')[0]}`);
+            doc.moveDown();
+            doc.text('This is an official issued document.', { align: 'left' });
+            doc.end();
+        });
     }
     async createIntent(applicationId, citizenNationalId) {
         const app = await this.prisma.application.findUnique({
@@ -80,6 +102,22 @@ let PaymentsService = class PaymentsService {
         }
         const pm = pi.payment_method;
         const card = pm?.card;
+        const issuedAt = new Date();
+        const issuedDateStr = issuedAt.toISOString().split('T')[0];
+        const issuedDateCompact = issuedDateStr.replace(/-/g, '');
+        const maxRes = await this.prisma.$queryRaw `
+      SELECT COALESCE(MAX((substring(serial_number from '([0-9]{4})$'))::int), 0) as maxseq
+      FROM issued_document
+      WHERE document_code = ${app.document.document_code}
+        AND issued_at = ${issuedDateStr}
+    `;
+        const maxSeq = (Array.isArray(maxRes) ? maxRes[0]?.maxseq : maxRes?.maxseq) ?? 0;
+        const nextSeq = (Number(maxSeq) || 0) + 1;
+        const seqStr = String(nextSeq).padStart(4, '0');
+        const serial = `ISS-${app.document.document_code}-${issuedDateCompact}-${seqStr}`;
+        const pdfBuffer = await this.generatePdfBuffer(app, serial, issuedAt);
+        const key = `issued_documents/${app.document.document_code}/${issuedDateCompact}/${serial}.pdf`;
+        const documentUrl = await this.minio.uploadFile(pdfBuffer, key, 'application/pdf');
         const payment = await this.prisma.$transaction(async (tx) => {
             const rec = await tx.payment.create({
                 data: {
@@ -97,6 +135,16 @@ let PaymentsService = class PaymentsService {
                 data: {
                     application_status: 'completed and issued',
                     completed_at: new Date(),
+                },
+            });
+            await tx.issued_document.create({
+                data: {
+                    citizen_national_id_number: app.citizen.citizen_national_id_number,
+                    document_code: app.document.document_code,
+                    application_id: applicationId,
+                    serial_number: serial,
+                    document_url: documentUrl,
+                    issued_at: issuedAt,
                 },
             });
             return rec;
@@ -128,6 +176,22 @@ let PaymentsService = class PaymentsService {
         const now = Date.now();
         const ref = `pi_mock${applicationId}${now}`;
         const currentYear = new Date().getFullYear();
+        const issuedAt = new Date();
+        const issuedDateStr = issuedAt.toISOString().split('T')[0];
+        const issuedDateCompact = issuedDateStr.replace(/-/g, '');
+        const maxRes = await this.prisma.$queryRaw `
+      SELECT COALESCE(MAX((substring(serial_number from '([0-9]{4})$'))::int), 0) as maxseq
+      FROM issued_document
+      WHERE document_code = ${app.document.document_code}
+        AND issued_at = ${issuedDateStr}
+    `;
+        const maxSeq = (Array.isArray(maxRes) ? maxRes[0]?.maxseq : maxRes?.maxseq) ?? 0;
+        const nextSeq = (Number(maxSeq) || 0) + 1;
+        const seqStr = String(nextSeq).padStart(4, '0');
+        const serial = `ISS-${app.document.document_code}-${issuedDateCompact}-${seqStr}`;
+        const pdfBuffer = await this.generatePdfBuffer(app, serial, issuedAt);
+        const key = `issued_documents/${app.document.document_code}/${issuedDateCompact}/${serial}.pdf`;
+        const documentUrl = await this.minio.uploadFile(pdfBuffer, key, 'application/pdf');
         const payment = await this.prisma.$transaction(async (tx) => {
             const rec = await tx.payment.create({
                 data: {
@@ -147,6 +211,16 @@ let PaymentsService = class PaymentsService {
                     completed_at: new Date(),
                 },
             });
+            await tx.issued_document.create({
+                data: {
+                    citizen_national_id_number: app.citizen.citizen_national_id_number,
+                    document_code: app.document.document_code,
+                    application_id: applicationId,
+                    serial_number: serial,
+                    document_url: documentUrl,
+                    issued_at: issuedAt,
+                },
+            });
             return rec;
         });
         void this.sms.sendPaymentCompleted(app.citizen.phone_number, app.document.document_name, app.application_reference_number ?? `APP-00${applicationId}`);
@@ -158,6 +232,7 @@ exports.PaymentsService = PaymentsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         sms_service_1.SmsService,
-        config_1.ConfigService])
+        config_1.ConfigService,
+        minio_service_1.MinioService])
 ], PaymentsService);
 //# sourceMappingURL=payments.service.js.map

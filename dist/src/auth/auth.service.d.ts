@@ -38,6 +38,7 @@ export declare class AuthService {
     }>;
     private findCitizenByIdentifier;
     forgotPasswordStart(dto: ForgotPasswordStartDto): Promise<{
+        mockOtp?: string;
         message: string;
     }>;
     forgotPasswordReset(dto: ForgotPasswordResetDto): Promise<{

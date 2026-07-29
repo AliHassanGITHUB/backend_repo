@@ -1,17 +1,16 @@
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequirementDto, UpdateRequirementDto } from './dto/create-requirement.dto';
 export declare class RequirementsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    findAll(): Prisma.PrismaPromise<{
+    findAll(): import(".prisma/client").Prisma.PrismaPromise<{
         created_at: Date;
         is_active: boolean;
         created_by: string;
         updated_at: Date | null;
         updated_by: string | null;
         form_input_kind: string | null;
-        form_options: Prisma.JsonValue | null;
+        form_options: import("@prisma/client/runtime/client").JsonValue | null;
         requirement_code: string;
         requirement_name: string;
         requirement_type: string;
@@ -23,7 +22,7 @@ export declare class RequirementsService {
         updated_at: Date | null;
         updated_by: string | null;
         form_input_kind: string | null;
-        form_options: Prisma.JsonValue | null;
+        form_options: import("@prisma/client/runtime/client").JsonValue | null;
         requirement_code: string;
         requirement_name: string;
         requirement_type: string;
@@ -35,7 +34,7 @@ export declare class RequirementsService {
         updated_at: Date | null;
         updated_by: string | null;
         form_input_kind: string | null;
-        form_options: Prisma.JsonValue | null;
+        form_options: import("@prisma/client/runtime/client").JsonValue | null;
         requirement_code: string;
         requirement_name: string;
         requirement_type: string;
@@ -47,7 +46,7 @@ export declare class RequirementsService {
         updated_at: Date | null;
         updated_by: string | null;
         form_input_kind: string | null;
-        form_options: Prisma.JsonValue | null;
+        form_options: import("@prisma/client/runtime/client").JsonValue | null;
         requirement_code: string;
         requirement_name: string;
         requirement_type: string;

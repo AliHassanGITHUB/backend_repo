@@ -70,11 +70,11 @@ export declare class ApplicationsService {
                 created_by: string;
                 updated_at: Date | null;
                 updated_by: string | null;
+                form_input_kind: string | null;
+                form_options: import("@prisma/client/runtime/client").JsonValue | null;
                 requirement_code: string;
                 requirement_name: string;
                 requirement_type: string;
-                form_input_kind: string | null;
-                form_options: import("@prisma/client/runtime/client").JsonValue | null;
             };
         } & {
             created_at: Date;

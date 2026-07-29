@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateRequirementDto = exports.CreateRequirementDto = void 0;
 const class_validator_1 = require("class-validator");
 const VALID_TYPES = ['image', 'PDF document', 'form'];
+const VALID_FORM_INPUT_KINDS = ['text', 'select', 'number', 'group'];
 class CreateRequirementDto {
     code;
     name;
     type;
+    form_input_kind;
+    form_options;
 }
 exports.CreateRequirementDto = CreateRequirementDto;
 __decorate([
@@ -36,9 +39,22 @@ __decorate([
     (0, class_validator_1.IsIn)(VALID_TYPES),
     __metadata("design:type", String)
 ], CreateRequirementDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(VALID_FORM_INPUT_KINDS),
+    __metadata("design:type", Object)
+], CreateRequirementDto.prototype, "form_input_kind", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Object)
+], CreateRequirementDto.prototype, "form_options", void 0);
 class UpdateRequirementDto {
     name;
     type;
+    form_input_kind;
+    form_options;
 }
 exports.UpdateRequirementDto = UpdateRequirementDto;
 __decorate([
@@ -52,4 +68,15 @@ __decorate([
     (0, class_validator_1.IsIn)(VALID_TYPES),
     __metadata("design:type", String)
 ], UpdateRequirementDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsIn)(VALID_FORM_INPUT_KINDS),
+    __metadata("design:type", Object)
+], UpdateRequirementDto.prototype, "form_input_kind", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Object)
+], UpdateRequirementDto.prototype, "form_options", void 0);
 //# sourceMappingURL=create-requirement.dto.js.map

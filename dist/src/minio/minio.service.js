@@ -57,7 +57,8 @@ let MinioService = MinioService_1 = class MinioService {
         this.config = config;
         const port = config.get('PORT') ?? '3000';
         this.uploadsDir = path.resolve(process.cwd(), 'uploads');
-        this.baseUrl = `http://localhost:${port}/uploads`;
+        const base = process.env.BASE_URL ? process.env.BASE_URL : `http://localhost:${port}`;
+        this.baseUrl = `${base.replace(/\/$/, '')}/uploads`;
     }
     onModuleInit() {
         fs.mkdirSync(this.uploadsDir, { recursive: true });

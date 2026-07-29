@@ -5,5 +5,6 @@ export declare class OtpController {
     constructor(otp: OtpService);
     send(dto: SendOtpDto): Promise<{
         sent: boolean;
+        mockOtp?: string;
     }>;
 }
