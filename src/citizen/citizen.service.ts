@@ -14,6 +14,7 @@ import { VerifyService } from '../verify/verify.service';
 import { UpdatePhoneDto } from './dto/update-phone.dto';
 import { UpdateCredentialsDto } from './dto/update-credentials.dto';
 
+
 const IMAGE_MIMES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
 
 const DOC_MIMES: Record<string, string> = {
